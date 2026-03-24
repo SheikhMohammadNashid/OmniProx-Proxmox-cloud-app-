@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Proxmox Cloud Console</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Proxmox Cloud Console</h1>
+        <p class="muted">Provision VMs with policy controls</p>
+      </div>
+      <div class="topbar-actions">
+        <div id="user-meta"></div>
+        <button id="logout-btn" type="button" class="ghost-btn">Logout</button>
+      </div>
+    </header>
+    <main class="container grid">
+      <section class="card">
+        <h2>Create VM Job</h2>
+        <form id="vm-form">
+          <label>VM ID <input type="number" name="vmid" min="100" required /></label>
+          <label>VM Name <input type="text" name="name" required /></label>
+          <label>CPU Cores <input type="number" name="cores" min="1" max="32" required /></label>
+          <label>Memory (MB) <input type="number" name="memory_mb" min="512" value="2048" required /></label>
+          <label>Disk (GB) <input type="number" name="disk_gb" min="5" value="20" required /></label>
+          <label>Storage <input type="text" name="storage" value="local-lvm" required /></label>
+          <label>Bridge <input type="text" name="bridge" value="vmbr0" required /></label>
+          <label>
+            OS
+            <select name="os_choice" required>
+              {% for os_name in available_oses %}
+              <option value="{{ os_name }}">{{ os_name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <button type="submit">Queue VM Creation</button>
+        </form>
+      </section>
+      <section class="card">
+        <div class="card-header">
+          <h2>Jobs</h2>
+          <button id="refresh-jobs" type="button" class="ghost-btn">Refresh</button>
+        </div>
+        <pre id="jobs-output"></pre>
+      </section>
+      <section class="card">
+        <h2>API Output</h2>
+        <pre id="result"></pre>
+      </section>
+    </main>
+    <script src="/static/dashboard.js"></script>
+  </body>
+</html>

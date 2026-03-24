@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register | Proxmox Cloud Console</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="auth-page">
+    <main class="auth-shell">
+      <section class="auth-card">
+        <h1>Create account</h1>
+        <p>Register to submit VM provisioning requests.</p>
+        <form id="register-form">
+          <label>Username <input type="text" name="username" required /></label>
+          <label>Password <input type="password" name="password" required /></label>
+          <button type="submit">Create account</button>
+        </form>
+        <p class="auth-links">
+          Already have an account? <a href="/login">Sign in</a>
+        </p>
+        <pre id="result"></pre>
+      </section>
+    </main>
+    <script src="/static/register.js"></script>
+  </body>
+</html>

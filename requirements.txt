@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+jinja2
+requests
+pydantic-settings
+pytest
+httpx
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+bcrypt<5

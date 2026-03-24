@@ -1,0 +1,141 @@
+:root {
+  --bg-0: #0b1220;
+  --bg-1: #111827;
+  --card: rgba(15, 23, 42, 0.75);
+  --line: rgba(148, 163, 184, 0.28);
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --brand: #3b82f6;
+  --brand-2: #8b5cf6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  background: radial-gradient(circle at top right, #1f2937 0%, var(--bg-0) 45%, #050a15 100%);
+  min-height: 100vh;
+}
+
+.auth-page {
+  display: grid;
+  place-items: center;
+}
+
+.auth-shell {
+  width: min(460px, 92vw);
+  padding: 24px 0;
+}
+
+.auth-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+  padding: 24px;
+  backdrop-filter: blur(8px);
+}
+
+.auth-links {
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+
+a {
+  color: #93c5fd;
+}
+
+.topbar {
+  width: min(1200px, 95vw);
+  margin: 24px auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.muted {
+  color: var(--muted);
+  margin: 0;
+}
+
+.container {
+  width: min(1200px, 95vw);
+  margin: 20px auto;
+  padding: 6px;
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+form {
+  display: grid;
+  gap: 10px;
+}
+
+label {
+  display: grid;
+  gap: 4px;
+  color: #cbd5e1;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #0b1220;
+  color: #f8fafc;
+}
+
+button {
+  border: none;
+  font-weight: 650;
+  cursor: pointer;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+}
+
+.ghost-btn {
+  width: auto;
+  background: transparent;
+  border: 1px solid #475569;
+}
+
+pre {
+  margin-top: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-height: 140px;
+  background: #030712;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 10px;
+}

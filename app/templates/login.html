@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Proxmox Cloud Console</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="auth-page">
+    <main class="auth-shell">
+      <section class="auth-card">
+        <h1>Welcome back</h1>
+        <p>Sign in to manage VM creation jobs.</p>
+        <form id="login-form">
+          <label>Username <input type="text" name="username" required /></label>
+          <label>Password <input type="password" name="password" required /></label>
+          <button type="submit">Sign in</button>
+        </form>
+        <p class="auth-links">
+          No account? <a href="/register">Create one</a>
+        </p>
+        <pre id="result"></pre>
+      </section>
+    </main>
+    <script src="/static/login.js"></script>
+  </body>
+</html>
