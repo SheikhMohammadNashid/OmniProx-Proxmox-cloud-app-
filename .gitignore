@@ -1,0 +1,18 @@
+.env
+.env.*
+
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+.pytest_cache/
+
+# Local runtime DB (created by the app)
+app.db
+*.db
+backend/db/app.db
+
+# OS/editor
+.DS_Store
+

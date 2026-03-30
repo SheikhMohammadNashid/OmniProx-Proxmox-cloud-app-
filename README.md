@@ -2,11 +2,13 @@
 
 This project provides:
 - A web form where users select VM hardware and OS.
-- FastAPI endpoints for VM provisioning.
-- A safe `dry_run` mode for testing before provisioning real VMs.
-- API tests using `pytest`.
+- Per-user Proxmox credential storage (so the app is modular).
+- FastAPI endpoints for VM provisioning (queued background jobs).
+- A safe `dry_run` mode to test without creating real VMs.
 
-## 1) Setup
+## 1) First-time setup
+
+Create your Python venv and install dependencies:
 
 ```bash
 python3 -m venv .venv
@@ -15,39 +17,64 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Update `.env` with your real Proxmox details and API token.
+Update `.env` with your Proxmox API token (used as defaults until each user saves their own creds).
 
-## 2) Run locally
+Notes:
+- The app stores users + VM jobs in the local SQLite file `app.db` (do not commit it).
+- Each user must open `/creds` and save Proxmox credentials for their account before VM creation will work reliably.
+
+## 2) Run the app
+
+Local dev:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
 Open:
-- `http://127.0.0.1:8000/` (web UI)
+- `http://127.0.0.1:8000/` (redirects to UI)
 - `http://127.0.0.1:8000/docs` (Swagger UI)
 
-## 3) Test safely before go-live
-
-Keep `PROXMOX_DRY_RUN=true` in `.env` while validating:
+Docker:
 
 ```bash
-pytest -q
+docker compose up --build
 ```
 
-When dry run is enabled, the backend returns the payload that would be sent to Proxmox, without creating a VM.
+## 3) Register -> Login -> Add Proxmox credentials
 
-## 4) Go-live checklist
+1. Go to `/register` and create an app account.
+2. Login at `/login`.
+3. If your Proxmox creds are not saved yet, the UI will redirect you to `/creds`.
+4. Enter:
+   - `Proxmox Base URL`
+   - `Node`
+   - `Token ID`
+   - `Token Secret`
+   - `Verify SSL` (usually OFF if you use a self-signed cert)
+   - `Dry run` (ON = no VM will be created)
+5. Save, then you’ll be redirected to `/app`.
 
-1. Confirm OS ISO names in `app/proxmox_client.py` (`OS_STORAGE_MAP`) match your actual Proxmox ISO storage.
-2. Set `PROXMOX_DRY_RUN=false`.
-3. Create a test VM from UI.
-4. Verify VM appears in Proxmox with expected CPU/RAM/Disk/network.
-5. Add authentication (SSO or app login) before exposing this app to users.
+If `Dry run` is enabled, VM jobs will be marked successful but **no VM is created in Proxmox**.
 
-## 5) Recommended next hardening
+## 4) OS ISO storage mapping (required for all installs/users)
 
-- Add user auth + RBAC.
-- Enforce per-user quotas.
-- Add audit logs for every create request.
-- Add background task queue + job status endpoint.
+Other users must update the ISO storage mapping in:
+- `app/proxmox_client.py` → `OS_STORAGE_MAP`
+- `backend/services/proxmox_client.py` → `OS_STORAGE_MAP` (current canonical location)
+
+Why:
+- The dropdown OS values are validated against `OS_STORAGE_MAP`.
+- The app uses those mapped Proxmox ISO paths when building the VM payload.
+
+Example:
+- If your Proxmox ISO storage uses a different storage name or paths than `local:iso/...`, you must edit `OS_STORAGE_MAP` accordingly.
+- Also confirm the ISO filenames referenced in `OS_STORAGE_MAP` exist in Proxmox under that storage.
+
+After updating `OS_STORAGE_MAP`, restart the app and then use `/creds` + the UI normally.
+
+## 5) VM creation + job status
+
+- Creating a VM queues a background job (`/api/vm-jobs`).
+- The jobs list (`/api/vm-jobs`) includes `proxmox_response`, so you can see whether the app was in dry-run or received a real Proxmox response.
+
