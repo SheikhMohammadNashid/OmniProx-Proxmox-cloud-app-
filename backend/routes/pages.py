@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
+from backend.services.proxmox_client import OS_STORAGE_MAP
+
 
 def build_pages_router(*, templates) -> APIRouter:
     router = APIRouter()
@@ -21,8 +23,11 @@ def build_pages_router(*, templates) -> APIRouter:
 
     @router.get("/app", response_class=HTMLResponse)
     def app_page(request: Request) -> HTMLResponse:
-        # backend.main provides a specialized handler that injects OS options.
-        return templates.TemplateResponse(request=request, name="app.html", context={})
+        return templates.TemplateResponse(
+            request=request,
+            name="app.html",
+            context={"available_oses": sorted(OS_STORAGE_MAP.keys())},
+        )
 
     @router.get("/creds", response_class=HTMLResponse)
     def creds_page(request: Request) -> HTMLResponse:

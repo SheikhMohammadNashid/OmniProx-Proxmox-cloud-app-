@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
@@ -63,6 +64,24 @@ def _run_vm_job(job_id: int, payload: VMCreateRequest) -> None:
         db.update_vm_job(job_id, status="failed", error_message=str(exc))
 
 
+def _proxmox_web_origin(api_base_url: str) -> str | None:
+    parsed = urlparse(api_base_url)
+    if not parsed.scheme or not parsed.netloc:
+        return None
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+def _console_url_for_job(row, proxmox_response, client: ProxmoxClient) -> str | None:
+    if row["status"] != "success":
+        return None
+    if proxmox_response and proxmox_response.get("dry_run"):
+        return None
+    origin = _proxmox_web_origin(client.base_url)
+    if not origin:
+        return None
+    return f"{origin}/?console=kvm&novnc=1&vmid={row['vmid']}&node={client.node}"
+
+
 @router.post("", response_model=VMJobCreateResponse)
 def create_vm_job(
     payload: VMCreateRequest,
@@ -97,6 +116,7 @@ def create_vm_job(
 @router.get("")
 def list_my_vm_jobs(user=Depends(get_current_user)):
     rows = db.list_user_vm_jobs(user["id"])
+    client = _client_from_proxmox_credentials_row(db.get_proxmox_credentials(user["id"]))
     jobs = []
     for row in rows:
         proxmox_response = (
@@ -110,6 +130,7 @@ def list_my_vm_jobs(user=Depends(get_current_user)):
                 "os_choice": row["os_choice"],
                 "status": row["status"],
                 "proxmox_response": proxmox_response,
+                "console_url": _console_url_for_job(row, proxmox_response, client),
                 "error_message": row["error_message"],
                 "created_at": row["created_at"],
                 "updated_at": row["updated_at"],
@@ -125,15 +146,16 @@ def get_vm_job(job_id: int, user=Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Job not found")
     if row["user_id"] != user["id"] and user["role"] != "admin":
         raise HTTPException(status_code=403, detail="Not allowed")
+    client = _client_from_proxmox_credentials_row(db.get_proxmox_credentials(user["id"]))
+    proxmox_response = json.loads(row["proxmox_response"]) if row["proxmox_response"] else None
     return {
         "id": row["id"],
         "user_id": row["user_id"],
         "vmid": row["vmid"],
         "vm_name": row["vm_name"],
         "status": row["status"],
-        "proxmox_response": json.loads(row["proxmox_response"])
-        if row["proxmox_response"]
-        else None,
+        "proxmox_response": proxmox_response,
+        "console_url": _console_url_for_job(row, proxmox_response, client),
         "error_message": row["error_message"],
         "created_at": row["created_at"],
         "updated_at": row["updated_at"],

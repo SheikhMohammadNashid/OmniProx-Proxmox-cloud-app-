@@ -9,8 +9,6 @@ from backend.core.config import settings
 from backend.db import repo as db
 from backend.routes import admin, auth, creds, vm_jobs
 from backend.routes.pages import build_pages_router
-from backend.services.proxmox_client import OS_STORAGE_MAP
-
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = PROJECT_DIR / "frontend"
 TEMPLATES_DIR = FRONTEND_DIR / "templates"
@@ -27,15 +25,6 @@ db.init_db()
 pages_router = build_pages_router(templates=templates)
 
 
-@pages_router.get("/app", include_in_schema=False)
-def _app_page_override(request):  # type: ignore[no-redef]
-    return templates.TemplateResponse(
-        request=request,
-        name="app.html",
-        context={"available_oses": sorted(OS_STORAGE_MAP.keys())},
-    )
-
-
 app.include_router(pages_router)
 
 # API routers
@@ -47,11 +36,15 @@ app.include_router(admin.router)
 
 @app.get("/api/os-options")
 def get_os_options() -> dict:
+    from backend.services.proxmox_client import OS_STORAGE_MAP
+
     return {"options": sorted(OS_STORAGE_MAP.keys())}
 
 
 @app.get("/api/runtime-status")
 def get_runtime_status() -> dict:
+    from backend.services.proxmox_client import OS_STORAGE_MAP
+
     return {
         "dry_run": settings.proxmox_dry_run,
         "proxmox_base_url": settings.proxmox_base_url,

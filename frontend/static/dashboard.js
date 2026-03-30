@@ -1,6 +1,7 @@
 const form = document.getElementById("vm-form");
 const result = document.getElementById("result");
 const jobsOutput = document.getElementById("jobs-output");
+const consoleLinks = document.getElementById("console-links");
 const refreshJobsBtn = document.getElementById("refresh-jobs");
 const userMeta = document.getElementById("user-meta");
 const logoutBtn = document.getElementById("logout-btn");
@@ -64,7 +65,27 @@ async function fetchJobs() {
     headers: { Authorization: `Bearer ${token}` },
   });
   const json = await response.json();
+  renderConsoleLinks(json.jobs || []);
   jobsOutput.textContent = JSON.stringify(json, null, 2);
+}
+
+function renderConsoleLinks(jobs) {
+  consoleLinks.innerHTML = "";
+  const consoleReadyJobs = jobs.filter((job) => Boolean(job.console_url));
+  if (consoleReadyJobs.length === 0) {
+    consoleLinks.textContent = "No console links yet (job must be success and not dry-run).";
+    return;
+  }
+
+  consoleReadyJobs.slice(0, 10).forEach((job) => {
+    const link = document.createElement("a");
+    link.className = "ghost-btn";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.href = job.console_url;
+    link.textContent = `Open Console: ${job.vm_name} (${job.vmid})`;
+    consoleLinks.appendChild(link);
+  });
 }
 
 form.addEventListener("submit", async (event) => {
