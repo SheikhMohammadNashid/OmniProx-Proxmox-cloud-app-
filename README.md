@@ -28,7 +28,7 @@ Notes:
 Local dev:
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn backend.main:app --reload
 ```
 
 Open:
@@ -60,7 +60,6 @@ If `Dry run` is enabled, VM jobs will be marked successful but **no VM is create
 ## 4) OS ISO storage mapping (required for all installs/users)
 
 Other users must update the ISO storage mapping in:
-- `app/proxmox_client.py` → `OS_STORAGE_MAP`
 - `backend/services/proxmox_client.py` → `OS_STORAGE_MAP` (current canonical location)
 
 Why:
