@@ -11,10 +11,10 @@ from backend.routes import admin, auth, creds, vm_jobs
 from backend.routes.pages import build_pages_router
 from backend.services.proxmox_client import OS_STORAGE_MAP
 
-BASE_DIR = Path(__file__).resolve().parent
-WEB_DIR = BASE_DIR / "web"
-TEMPLATES_DIR = WEB_DIR / "templates"
-STATIC_DIR = WEB_DIR / "static"
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = PROJECT_DIR / "frontend"
+TEMPLATES_DIR = FRONTEND_DIR / "templates"
+STATIC_DIR = FRONTEND_DIR / "static"
 
 app = FastAPI(title="Proxmox VM Self-Service API", version="0.2.0")
 

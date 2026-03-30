@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proxmox Credentials | Proxmox Cloud Console</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="auth-page">
+    <main class="auth-shell">
+      <section class="auth-card">
+        <h1>Proxmox Credentials</h1>
+        <p>Enter your Proxmox API token details for this account.</p>
+
+        <form id="proxmox-creds-form">
+          <label
+            >Proxmox Base URL
+            <input
+              type="text"
+              name="base_url"
+              placeholder="https://YOUR-PROXMOX-IP:8006/api2/json"
+              required
+          /></label>
+
+          <label
+            >Node
+            <input type="text" name="node" placeholder="pve" required
+          /></label>
+
+          <label
+            >Token ID
+            <input
+              type="text"
+              name="token_id"
+              placeholder="root@pam!token"
+              required
+          /></label>
+
+          <label
+            >Token Secret
+            <input
+              type="password"
+              name="token_secret"
+              placeholder="Your API token secret"
+              required
+          /></label>
+
+          <div class="checkbox-row">
+            <label>
+              <input type="checkbox" id="verify_ssl" name="verify_ssl" />
+              Verify SSL
+            </label>
+            <label>
+              <input type="checkbox" id="dry_run" name="dry_run" />
+              Dry run
+            </label>
+          </div>
+
+          <button type="submit">Save credentials</button>
+        </form>
+
+        <p class="auth-links">
+          Need to create an account first?
+          <a href="/register">Register</a>
+        </p>
+
+        <pre id="result"></pre>
+      </section>
+    </main>
+    <script src="/static/creds.js"></script>
+  </body>
+</html>
+
