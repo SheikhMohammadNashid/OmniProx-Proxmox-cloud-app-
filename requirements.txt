@@ -9,3 +9,4 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 bcrypt<5
+websockets

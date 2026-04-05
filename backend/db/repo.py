@@ -3,7 +3,6 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Keep DB inside the project tree for clarity.
 DB_PATH = Path(__file__).resolve().parent / "app.db"
 
 
@@ -40,6 +39,7 @@ def init_db() -> None:
             vmid INTEGER NOT NULL,
             vm_name TEXT NOT NULL,
             os_choice TEXT NOT NULL,
+            ssh_user TEXT NOT NULL DEFAULT 'ubuntu',
             request_payload TEXT NOT NULL,
             status TEXT NOT NULL,
             proxmox_response TEXT,
@@ -50,6 +50,12 @@ def init_db() -> None:
         )
         """
     )
+    # Migrate existing DBs that don't have ssh_user column yet
+    try:
+        cur.execute("ALTER TABLE vm_jobs ADD COLUMN ssh_user TEXT NOT NULL DEFAULT 'ubuntu'")
+    except sqlite3.OperationalError:
+        pass  # column already exists
+
     cur.execute(
         """
         CREATE TABLE IF NOT EXISTS audit_logs (
@@ -108,6 +114,15 @@ def get_user_by_username(username: str):
     return row
 
 
+def get_user_by_id(user_id: int):
+    conn = _conn()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    row = cur.fetchone()
+    conn.close()
+    return row
+
+
 def count_user_jobs_today(user_id: int) -> int:
     today = datetime.now(tz=timezone.utc).date().isoformat()
     conn = _conn()
@@ -122,17 +137,22 @@ def count_user_jobs_today(user_id: int) -> int:
 
 
 def create_vm_job(
-    user_id: int, vmid: int, vm_name: str, os_choice: str, request_payload: dict
+    user_id: int,
+    vmid: int,
+    vm_name: str,
+    os_choice: str,
+    ssh_user: str,
+    request_payload: dict,
 ) -> int:
     conn = _conn()
     cur = conn.cursor()
     now = utc_now_iso()
     cur.execute(
         """
-        INSERT INTO vm_jobs (user_id, vmid, vm_name, os_choice, request_payload, status, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, 'queued', ?, ?)
+        INSERT INTO vm_jobs (user_id, vmid, vm_name, os_choice, ssh_user, request_payload, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'queued', ?, ?)
         """,
-        (user_id, vmid, vm_name, os_choice, json.dumps(request_payload), now, now),
+        (user_id, vmid, vm_name, os_choice, ssh_user, json.dumps(request_payload), now, now),
     )
     conn.commit()
     job_id = cur.lastrowid
@@ -236,15 +256,8 @@ def upsert_proxmox_credentials(
     cur.execute(
         """
         INSERT INTO proxmox_credentials (
-            user_id,
-            base_url,
-            node,
-            token_id,
-            token_secret,
-            verify_ssl,
-            dry_run,
-            created_at,
-            updated_at
+            user_id, base_url, node, token_id, token_secret,
+            verify_ssl, dry_run, created_at, updated_at
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(user_id) DO UPDATE SET
@@ -257,17 +270,9 @@ def upsert_proxmox_credentials(
             updated_at = excluded.updated_at
         """,
         (
-            user_id,
-            base_url,
-            node,
-            token_id,
-            token_secret,
-            int(bool(verify_ssl)),
-            int(bool(dry_run)),
-            now,
-            now,
+            user_id, base_url, node, token_id, token_secret,
+            int(bool(verify_ssl)), int(bool(dry_run)), now, now,
         ),
     )
     conn.commit()
     conn.close()
-

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 
-from backend.services.proxmox_client import OS_STORAGE_MAP
+from backend.services.proxmox_client import CLOUD_TEMPLATE_MAP
 
 
 class VMHardwareSpec(BaseModel):
@@ -55,12 +55,14 @@ class VMHardwareSpec(BaseModel):
 class VMCreateRequest(BaseModel):
     hardware: VMHardwareSpec
     os_choice: str
+    ssh_user: str = Field(default="ubuntu", min_length=1, max_length=64)
+    ssh_password: str = Field(..., min_length=6, max_length=128)
 
     @field_validator("os_choice")
     @classmethod
     def validate_os_choice(cls, value: str) -> str:
-        if value not in OS_STORAGE_MAP:
-            supported = ", ".join(sorted(OS_STORAGE_MAP.keys()))
+        if value not in CLOUD_TEMPLATE_MAP:
+            supported = ", ".join(sorted(CLOUD_TEMPLATE_MAP.keys()))
             raise ValueError(f"Unsupported os_choice '{value}'. Supported: {supported}")
         return value
 
@@ -104,4 +106,3 @@ class ProxmoxCredentialsStatusResponse(BaseModel):
     token_id: str | None = None
     verify_ssl: bool | None = None
     dry_run: bool | None = None
-

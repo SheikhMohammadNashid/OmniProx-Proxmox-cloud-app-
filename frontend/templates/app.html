@@ -3,32 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard | Proxmox Cloud Console</title>
+    <title>Dashboard | Proxmox Cloud</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <header class="topbar">
       <div>
-        <h1>Proxmox Cloud Console</h1>
-        <p class="muted">Provision VMs with policy controls</p>
+        <h1>Proxmox Cloud</h1>
+        <p class="muted">Provision VMs with golden-image templates</p>
       </div>
       <div class="topbar-actions">
         <div id="user-meta"></div>
-        <a href="/creds" class="ghost-btn" id="creds-link">Proxmox creds</a>
+        <a href="/creds" class="ghost-btn">Proxmox creds</a>
         <button id="logout-btn" type="button" class="ghost-btn">Logout</button>
       </div>
     </header>
+
     <main class="container grid">
+
+      <!-- ── Create VM ── -->
       <section class="card">
-        <h2>Create VM Job</h2>
+        <h2>Create VM</h2>
         <form id="vm-form">
-          <label>VM ID <input type="number" name="vmid" min="100" required /></label>
-          <label>VM Name <input type="text" name="name" required /></label>
-          <label>CPU Cores <input type="number" name="cores" min="1" max="32" required /></label>
-          <label>Memory (MB) <input type="number" name="memory_mb" min="512" value="2048" required /></label>
-          <label>Disk (GB) <input type="number" name="disk_gb" min="5" value="20" required /></label>
-          <label>Storage <input type="text" name="storage" value="local-lvm" required /></label>
-          <label>Bridge <input type="text" name="bridge" value="vmbr0" required /></label>
+          <label>VM ID       <input type="number" name="vmid"         min="100" required /></label>
+          <label>VM Name     <input type="text"   name="name"         required /></label>
+          <label>CPU Cores   <input type="number" name="cores"        min="1" max="32" value="2" required /></label>
+          <label>Memory (MB) <input type="number" name="memory_mb"    min="512" value="2048" required /></label>
+          <label>Disk (GB)   <input type="number" name="disk_gb"      min="5" value="20" required /></label>
+          <label>Storage     <input type="text"   name="storage"      value="local-lvm" required /></label>
+          <label>Bridge      <input type="text"   name="bridge"       value="vmbr0" required /></label>
           <label>
             OS
             <select name="os_choice" required>
@@ -37,23 +40,31 @@
               {% endfor %}
             </select>
           </label>
-          <button type="submit">Queue VM Creation</button>
+          <label>SSH Username
+            <input type="text" name="ssh_user" value="ubuntu" required />
+          </label>
+          <label>SSH Password
+            <input type="password" name="ssh_password" required minlength="6"
+                   placeholder="You will use this to SSH in" />
+          </label>
+          <button type="submit">Create VM</button>
         </form>
+        <pre id="result" style="display:none"></pre>
       </section>
+
+      <!-- ── Jobs ── -->
       <section class="card">
         <div class="card-header">
-          <h2>Jobs</h2>
+          <h2>My VMs</h2>
           <button id="refresh-jobs" type="button" class="ghost-btn">Refresh</button>
         </div>
-        <div id="console-links" class="console-links"></div>
-        <pre id="jobs-output"></pre>
+        <div id="job-list" class="job-list">
+          <p style="color:#94a3b8;margin-top:12px">No VMs yet.</p>
+        </div>
       </section>
-      <section class="card">
-        <h2>API Output</h2>
-        <pre id="result"></pre>
-      </section>
+
     </main>
+
     <script src="/static/dashboard.js"></script>
   </body>
 </html>
-
