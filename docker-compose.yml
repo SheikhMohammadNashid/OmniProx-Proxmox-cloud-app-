@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    image:${DOCKER_USER}/Docmind-Rag:v${TAG}
     ports:
       - "8000:8000"
     env_file:
