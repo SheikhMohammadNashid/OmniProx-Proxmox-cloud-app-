@@ -7,9 +7,9 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    networks: 
-      -  dockmind-network
-networks:
-  dockmind-network
-    driver: bridge
+    networks:
+      - docmind-network
 
+networks:
+  docmind-network:
+    driver: bridge
