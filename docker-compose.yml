@@ -1,9 +1,15 @@
 services:
   app:
-    image: ${DOCKER_USER}/Docmind-Rag:v${TAG}
+    image: ${DOCKER_USER}/docmind-rag:v${TAG}
+    container_name: docmind-rag
+    restart: always
     ports:
       - "8000:8000"
     env_file:
       - .env
-    restart: unless-stopped
+    networks: 
+      -  dockmind-network
+networks:
+  dockmind-network
+    driver: bridge
 
