@@ -18,8 +18,8 @@ pipeline {
                         sh "echo \$PASS | docker login -u \$USER --password-stdin"
 
                         // Build & Push single app image
-                        sh "docker build -t ${DOCKER_USER}/docmind-rag:v${TAG} ."
-                        sh "docker push ${DOCKER_USER}/docmind-rag:v${TAG}"
+                        sh "docker build -t ${DOCKER_USER}/omniprox:v${TAG}" .
+                        sh "docker push ${DOCKER_USER}/omniprox:v${TAG}"
                     }
                 }
             }
