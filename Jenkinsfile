@@ -54,6 +54,7 @@ pipeline {
                             export TAG=${TAG}
                             export DOCKER_USER=${DOCKER_USER}
                             docker compose pull
+                            docker compose down
                             docker compose up -d
                         '
                     """
