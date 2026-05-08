@@ -30,7 +30,7 @@ pipeline {
                     sh "scp -o StrictHostKeyChecking=no docker-compose.yml ${STG_USER}@${STAGING_IP}:~/docker-compose.yml"
                     sh """
                         ssh -o StrictHostKeyChecking=no ${STG_USER}@${STAGING_IP} '
-                            docker ps -a --format "{{.Names}}" | grep -E "^docmind-rag" | xargs -r docker rm -f
+                            docker ps -a --format "{{.Names}}" | grep -E "^omniprox" | xargs -r docker rm -f
                             export TAG=${TAG}
                             export DOCKER_USER=${DOCKER_USER}
                             docker compose up -d
