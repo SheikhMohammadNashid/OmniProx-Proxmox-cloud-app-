@@ -1,6 +1,6 @@
 services:
   app:
-    image: ${DOCKER_USER}/docmind-rag:v${TAG}
+    image: ${DOCKER_USER}/omniprox:v${TAG}
     container_name: docmind-rag
     restart: always
     ports:
