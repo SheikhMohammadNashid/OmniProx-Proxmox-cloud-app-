@@ -1,7 +1,7 @@
 services:
   app:
     image: ${DOCKER_USER}/omniprox:v${TAG}
-    container_name: docmind-rag
+    container_name: omniprox
     restart: always
     ports:
       - "8000:8000"
