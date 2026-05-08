@@ -16,9 +16,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDS_ID, passwordVariable: 'PASS', usernameVariable: 'USER')]) {
                         sh "echo \$PASS | docker login -u \$USER --password-stdin"
-
-                        // Build & Push single app image
-                        sh "docker build -t ${DOCKER_USER}/omniprox:v${TAG} ." 
+                        sh "docker build -t ${DOCKER_USER}/omniprox:v${TAG} ."
                         sh "docker push ${DOCKER_USER}/omniprox:v${TAG}"
                     }
                 }
@@ -30,10 +28,11 @@ pipeline {
                     sh "scp -o StrictHostKeyChecking=no docker-compose.yml ${STG_USER}@${STAGING_IP}:~/docker-compose.yml"
                     sh """
                         ssh -o StrictHostKeyChecking=no ${STG_USER}@${STAGING_IP} '
-                            docker ps -a --format "{{.Names}}" | grep -E "^omniprox" | xargs -r docker rm -f
+                            docker ps -q --filter "publish=8000" | xargs -r docker stop
+                            docker compose down
                             export TAG=${TAG}
                             export DOCKER_USER=${DOCKER_USER}
-                            docker compose up -d
+                            docker compose up -d --remove-orphans
                         '
                     """
                 }
@@ -50,7 +49,8 @@ pipeline {
                     sh "scp -o StrictHostKeyChecking=no docker-compose.yml ${PROD_USER}@${PROD_IP}:~/docker-compose.yml"
                     sh """
                         ssh -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_IP} '
-                            docker ps -a --format "{{.Names}}" | grep -E "^docmind-rag" | xargs -r docker rm -f
+                            docker ps -q --filter "publish=8000" | xargs -r docker stop
+                            docker compose down
                             export TAG=${TAG}
                             export DOCKER_USER=${DOCKER_USER}
                             docker compose pull
